@@ -42,12 +42,12 @@ class Article
     /**
      * @ORM\Column(type="datetime_immutable", nullable=true)
      */
-    private \DatetimeImmutable $publishedAt;
+    private ?\DatetimeImmutable $publishedAt;
 
     /**
      * @ORM\Column(type="datetime", nullable=true)
      */
-    private \Datetime $editedAt;
+    private ?\DatetimeInterface $editedAt;
 
     /**
      * @ORM\Column(type="boolean")
