@@ -7,10 +7,11 @@ use App\Entity\Article;
 use Doctrine\ORM\Mapping as ORM;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
-use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\String\Slugger\SluggerInterface;
+use Symfony\Component\HttpKernel\Exception\HttpException;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 
-class ArticleFixtures extends Fixture
+class ArticleFixtures extends Fixture implements DependentFixtureInterface
 {
     private \Faker\Generator $faker;
 
@@ -26,9 +27,21 @@ class ArticleFixtures extends Fixture
     public function load(ObjectManager $manager): void
     {
         $this->manager = $manager;
+
         $this->faker = Factory::create();
+
         $this->generateArticles(6);
+
         $this->manager->flush();
+    }
+
+    public function getDependencies() 
+    {
+        return [
+            PictureFixtures::class,
+            AuthorFixtures::class,
+            CategoryFixtures::class
+        ];
     }
 
     private function generateArticles(int $number):void
@@ -44,13 +57,20 @@ class ArticleFixtures extends Fixture
 
             $slug = $this->slugger->slug(strtolower($title)) . '-' . $dateString;
 
+            $picture = $this->getReference("picture{$i}");
+
             $article->setTitle($title)
                     ->setContent($this->faker->paragraph())
                     ->setSlug($slug)
                     ->setCreatedAt($dateObject)
-                    ->setIsPublished(false);
+                    ->setIsPublished(false)
+                    ->setAuthor($this->getReference("author" . mt_rand(1, 2)))
+                    ->addCategory($this->getReference("category" . mt_rand(1, 3)))
+                    ->setPicture($picture);
 
             $this->manager->persist($article);
+
+            $picture->setArticle($article);
         }
     }
 
