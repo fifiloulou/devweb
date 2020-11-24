@@ -6,9 +6,10 @@ use Faker\Factory;
 use App\Entity\User;
 use Doctrine\Persistence\ObjectManager;
 use Doctrine\Bundle\FixturesBundle\Fixture;
+use Doctrine\Common\DataFixtures\DependentFixtureInterface;
 use Symfony\Component\Security\Core\Encoder\UserPasswordEncoderInterface;
 
-class UserFixtures extends Fixture
+class UserFixtures extends Fixture implements DependentFixtureInterface
 {
     private \Faker\Generator $faker;
 
@@ -32,15 +33,27 @@ class UserFixtures extends Fixture
         $this->manager->flush();
     }
 
+    public function getDependencies()
+    {
+        return [
+            AuthorFixtures::class,
+        ];
+    }
+
     private function generateUsers(int $number): void
     {
-        for ($i = 0; $i < $number; $i++);
+        $isVerified = [true, false];
+
+        for ($i = 0; $i < $number; $i++){
             $user = new User();
 
             $user->setEmail($this->faker->email())
-                 ->setPassword($this->passwordEncoder->encodePassword($user, 'badpassword'));
+                 ->setPassword($this->passwordEncoder->encodePassword($user, 'badpassword'))
+                 ->setIsVerified($isVerified[$i])
+                 ->setAuthor($this->getReference("author{$i}"));
 
                 $this->manager->persist($user);
+        }
 
     }
 }
