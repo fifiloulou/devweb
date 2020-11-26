@@ -16,6 +16,12 @@ use Symfony\Component\Form\Extension\Core\Type\RepeatedType;
 
 class RegistrationFormType extends AbstractType
 {
+    
+    /**
+     * @param FormBuilderInterface<callable> $builder
+     * @param array<mixed> $options
+     * @return void
+     */
     public function buildForm(FormBuilderInterface $builder, array $options)
     {
     $builder
@@ -65,7 +71,7 @@ class RegistrationFormType extends AbstractType
         ]);
     }
 
-    public function configureOptions(OptionsResolver $resolver)
+    public function configureOptions(OptionsResolver $resolver): void
     {
         $resolver->setDefaults([
             'data_class' => User::class,
